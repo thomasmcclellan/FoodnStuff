@@ -52,6 +52,9 @@ namespace FoodNStuff.WebMVC.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "TransactionID,CustomerID,ProductID")] Transaction transaction)
         {
+
+            GetProductByID(transaction);
+
             if (ModelState.IsValid)
             {
                 db.Transactions.Add(transaction);
@@ -132,6 +135,30 @@ namespace FoodNStuff.WebMVC.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+
+        private Product GetProductByID(Transaction transaction)
+        {
+            if (transaction.ProductID == null)
+            {
+                throw new Exception();
+            }
+
+            Product transactionProduct = db.Products.Single(p => p.ProductID == transaction.ProductID);
+
+            if (transactionProduct == null)
+            {
+                throw new Exception();
+            }
+
+            return transactionProduct;
+        }
+
+        private void DecreaseProductQuantity(Product product, int quantity)
+        {
+            product.Quantity -= quantity;
+            db.SaveChanges();
         }
     }
 }
